@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎉 Happy Birthday Susu 🎉</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+    }
+
+    .bg {
+      position: relative;
+      height: 100vh;
+      width: 100%;
+      background: 
+        linear-gradient(135deg, rgba(255, 154, 158, 0.4), rgba(250, 208, 196, 0.4)),
+        url('bg1.jpg') no-repeat center center;
+      background-size: cover;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: white;
+      transition: background 0.5s ease;
+      overflow: hidden;
+    }
+
+    .bg.dimmed {
+      background: black !important;
+    }
+
+    h1.title {
+      font-size: 2.8rem;
+      margin-bottom: 20px;
+      z-index: 2;
+      color: #ee4c7c;
+      text-shadow: 1px 1px 3px #000;
+    }
+
+    .heart {
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      z-index: 2;
+      color: #ee4c7c;
+    }
+
+    a.emoji-link {
+      font-size: 3.2rem;
+      text-decoration: none;
+      color: white;
+      transition: transform 0.2s ease;
+      z-index: 2;
+    }
+
+    a.emoji-link:hover {
+      transform: scale(1.2);
+    }
+
+    .cake-wrapper {
+      position: relative;
+      width: 300px;
+      height: auto;
+      margin-top: 20px;
+      z-index: 2;
+    }
+
+    canvas#cakeCanvas {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    .candle {
+      position: absolute;
+      width: 10px;
+      height: 35px;
+      background-color: #fffacd;
+      border-radius: 2px;
+      top: 18%;
+      left: 50%;
+      transform: translate(-50%, 0);
+      z-index: 3;
+      cursor: grab;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .candle.glow {
+      box-shadow: 0 0 20px 10px rgba(255, 180, 0, 0.6);
+    }
+
+    .flame {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 10px;
+      height: 20px;
+      background: radial-gradient(circle, #ffcc00, #ff6600, transparent);
+      border-radius: 50%;
+      animation: flicker 0.3s infinite alternate;
+      display: none;
+    }
+
+    @keyframes flicker {
+      from { transform: translateX(-50%) scaleY(1); opacity: 0.9; }
+      to   { transform: translateX(-50%) scaleY(1.2); opacity: 1; }
+    }
+
+    .particle {
+      position: absolute;
+      top: -10px;
+      width: 8px;
+      height: 8px;
+      background-color: white;
+      border-radius: 50%;
+      opacity: 0.8;
+      animation: fall linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(110vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    .colored-particle {
+      animation: fall2 linear forwards;
+    }
+
+    @keyframes fall2 {
+      to {
+        transform: translateY(120vh);
+        opacity: 0;
+      }
+    }
+
+    #birthdayVideo {
+      display: none;
+      width: 80vw;
+      height: 80vh;
+      z-index: 5;
+      border-radius: 12px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.8);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg" id="bg">
+    <h1 class="title">Wish You Happy Birthday Susu</h1>
+    <div class="heart">💞</div>
+
+    <div class="cake-wrapper" id="cakeWrapper">
+      <canvas id="cakeCanvas" width="300" height="300"></canvas>
+      <div class="candle" id="candle">
+        <div class="flame" id="flame"></div>
+      </div>
+    </div>
+
+    <video id="birthdayVideo" src="vd.mp4" autoplay muted controls></video>
+
+    <a href="next.html" class="emoji-link">🩹</a>
+  </div>
+
+<script>
+  const candle = document.getElementById('candle');
+  const flame = document.getElementById('flame');
+  const bg = document.getElementById('bg');
+  const canvas = document.getElementById('cakeCanvas');
+  const ctx = canvas.getContext('2d');
+  const video = document.getElementById('birthdayVideo');
+  const cakeWrapper = document.getElementById('cakeWrapper');
+
+  let isDragging = false;
+  let clickCount = 0;
+  let candleOnOnce = false;
+  let canEatCake = false;
+  let cakeImg = new Image();
+  cakeImg.src = 'cake.png';
+
+  cakeImg.onload = () => {
+    ctx.drawImage(cakeImg, 0, 0, canvas.width, canvas.height);
+  };
+
+  // Candle drag
+  candle.addEventListener('mousedown', () => { isDragging = true; });
+  document.addEventListener('mouseup', () => { isDragging = false; });
+  document.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      candle.style.left = `${x}px`;
+      candle.style.top = `${y}px`;
+      candle.style.transform = `translate(-50%, -50%)`;
+    }
+  });
+
+  // Candle click logic
+  candle.addEventListener('click', () => {
+    clickCount++;
+    if (clickCount === 2) {
+      flame.style.display = 'block';
+      candle.classList.add('glow');
+      bg.classList.add('dimmed');
+      candleOnOnce = true;
+    } else if (clickCount === 3) {
+      flame.style.display = 'none';
+      candle.classList.remove('glow');
+      bg.classList.remove('dimmed');
+      dropColorfulParticles();
+      clickCount = 0;
+
+      if (candleOnOnce) {
+        canEatCake = true;
+
+        // Replace cake with video
+        cakeWrapper.style.display = "none";
+        video.style.display = "block";
+        video.play();
+      }
+    }
+  });
+
+  function dropColorfulParticles() {
+    const colors = ['#ff4d4d', '#ffd700', '#4cff4c', '#1e90ff', '#ff69b4', '#ffa500', '#8000ff'];
+    for (let i = 0; i < 100; i++) {
+      const p = document.createElement('div');
+      p.classList.add('particle', 'colored-particle');
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.top = '-10px';
+      p.style.width = p.style.height = Math.random() * 6 + 4 + 'px';
+      p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      p.style.opacity = Math.random();
+      p.style.animationDuration = 2 + Math.random() * 2 + 's';
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 4000);
+    }
+  }
+
+  // Floating particles
+  const whiteColors = ['#ffffff', '#ffe4e1', '#fff0f5', '#ffcccb'];
+  for (let i = 0; i < 40; i++) {
+    const p = document.createElement('div');
+    p.classList.add('particle');
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDuration = 2 + Math.random() * 3 + 's';
+    p.style.backgroundColor = whiteColors[Math.floor(Math.random() * whiteColors.length)];
+    p.style.opacity = Math.random();
+    p.style.width = p.style.height = Math.random() * 6 + 2 + 'px';
+    document.body.appendChild(p);
+  }
+
+  // Cake bite logic
+  function eatCakeAt(x, y) {
+    if (!canEatCake) return;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, y, 15, 0, 2 * Math.PI);
+    ctx.clip();
+    ctx.clearRect(x - 15, y - 15, 30, 30);
+    ctx.restore();
+  }
+
+  canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    eatCakeAt(x, y);
+  });
+
+  let drawing = false;
+  canvas.addEventListener('mousedown', (e) => {
+    if (canEatCake) {
+      drawing = true;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      eatCakeAt(x, y);
+    }
+  });
+
+  canvas.addEventListener('mousemove', (e) => {
+    if (drawing && canEatCake) {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      eatCakeAt(x, y);
+    }
+  });
+
+  document.addEventListener('mouseup', () => {
+    drawing = false;
+  });
+</script>
+</body>
+</html>
